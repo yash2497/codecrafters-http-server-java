@@ -37,20 +37,20 @@ public class Main {
 
 //       System.out.println("body: " + body);
 
-       if(headerVal != null) {
-           clientSocket.getOutputStream().write(
-                   ("HTTP/1.1 200 OK\r\n" +
-                           "Content-Type: text/plain\r\n" +
-                           "Content-Length: " + headerVal.length() + "\r\n" +
-                           "\r\n" +
-                           headerVal).getBytes()
-           );
-       }
-       else {
-           clientSocket.getOutputStream().write(
-                   "HTTP/1.1 404 Not Found\r\n\r\n".getBytes()
-           );
-       }
+
+       clientSocket.getOutputStream().write(
+               ("HTTP/1.1 200 OK\r\n" +
+                       "Content-Type: text/plain\r\n" +
+                       "Content-Length: " + headerVal.length() + "\r\n" +
+                       "\r\n" +
+                       headerVal).getBytes()
+       );
+
+//       else {
+//           clientSocket.getOutputStream().write(
+//                   "HTTP/1.1 404 Not Found\r\n\r\n".getBytes()
+//           );
+//       }
      } catch (IOException e) {
        System.out.println("IOException: " + e.getMessage());
      }
