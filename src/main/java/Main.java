@@ -40,7 +40,7 @@ public class Main {
        }
        else {
            clientSocket.getOutputStream().write(
-                   "HTTP/1.1 500 Internal Server Error\r\n\r\n".getBytes()
+                   "HTTP/1.1 404 Not Found\r\n\r\n".getBytes()
            );
        }
      } catch (IOException e) {
