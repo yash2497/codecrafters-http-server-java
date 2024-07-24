@@ -28,7 +28,7 @@ public class Main {
 
        System.out.println(pathSegment);
 
-       if(pathSegment.isEmpty()) {
+       if(pathSegment == null) {
            clientSocket.getOutputStream().write(
                    "HTTP/1.1 200 OK\r\n\r\n".getBytes()
            );
