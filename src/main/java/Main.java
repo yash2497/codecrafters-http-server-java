@@ -31,7 +31,7 @@ public class Main {
 
        if(body != null) {
            clientSocket.getOutputStream().write(
-                   ("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: "+ body.length()+"\r\n\r\n" + Arrays.toString(body.getBytes())).getBytes()
+                   ("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: "+ body.length()+"\r\n\r\n" + body.getBytes()).getBytes()
            );
        }
        else {
