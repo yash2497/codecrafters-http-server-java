@@ -50,11 +50,12 @@ public class Main {
            );
        }
        else {
+           String resp = handleRequest(headers.get("response-body"));
            clientSocket.getOutputStream().write(
                    ("HTTP/1.1 200 OK\r\n" +
                            "Content-Type: text/plain\r\n" +
-                           "Content-Length: "+ "0" + "\r\n" +
-                           "\r\n").getBytes()
+                           "Content-Length: "+ resp.length() + "\r\n" +
+                           "\r\n"+resp).getBytes()
            );
        }
      } catch (IOException e) {
@@ -62,32 +63,32 @@ public class Main {
      }
   }
 
-//    private static String handleRequest(String requestLine) {
-//        if (requestLine == null || !requestLine.startsWith("GET")) {
-//            return null;
-//        }
-//
-//        // Example: GET echo/abcdefg HTTP/1.1
-//        String[] parts = requestLine.split(" ");
-//        if (parts.length < 2) {
-//            return null;
-//        }
-//
-//        // Extract path
-//        String path = parts[1];
-//        System.out.println("path: " + path);
-//        if(path.startsWith("/user-agent")) {
-//            path = path.startsWith("/") ? path.substring(1) : path;
-//            String[] params = path.split("/");
-//            return params[1].startsWith("/") ? path.substring(1) : params[1];
-//        }
-//        else if(path.equals("/")) {
-//            return "/";
-//        }
-//        else {
-//            return null;
-//        }
-//    }
+    private static String handleRequest(String requestLine) {
+        if (requestLine == null || !requestLine.startsWith("GET")) {
+            return null;
+        }
+
+        // Example: GET echo/abcdefg HTTP/1.1
+        String[] parts = requestLine.split(" ");
+        if (parts.length < 2) {
+            return null;
+        }
+
+        // Extract path
+        String path = parts[1];
+        System.out.println("path: " + path);
+        if(path.startsWith("/user-agent")) {
+            path = path.startsWith("/") ? path.substring(1) : path;
+            String[] params = path.split("/");
+            return params[1].startsWith("/") ? path.substring(1) : params[1];
+        }
+        else if(path.equals("/")) {
+            return "/";
+        }
+        else {
+            return null;
+        }
+    }
 
     private static Map<String, String> readHeaders(BufferedReader in) throws IOException {
         Map<String, String> headers = new HashMap<>();
@@ -99,7 +100,9 @@ public class Main {
                 headers.put(headerParts[0], headerParts[1]);
             }
             else {
-                headers.put(headerParts[0], null);
+                if(headerParts[0].startsWith("GET")) {
+                    headers.put("response-body", headerParts[0]);
+                }
             }
         }
         return headers;
