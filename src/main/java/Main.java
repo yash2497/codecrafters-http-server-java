@@ -24,37 +24,29 @@ public class Main {
        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
        String requestLine = in.readLine();
-       String pathSegment = extractPathSegment(requestLine);
+       String body = handleRequest(requestLine);
 
-       System.out.println(pathSegment == null);
-
-       if(pathSegment == null) {
+       if(body != null) {
            clientSocket.getOutputStream().write(
-                   "HTTP/1.1 500 Internal Server Error\r\n\r\n".getBytes()
-           );
-       }
-       else if (pathSegment.isEmpty()) {
-           clientSocket.getOutputStream().write(
-                   "HTTP/1.1 200 OK\r\n\r\n".getBytes()
+                   "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 3\r\n\r\nabc".getBytes()
            );
        }
        else {
            clientSocket.getOutputStream().write(
-                   "HTTP/1.1 404 Not Found\r\n\r\n".getBytes()
+                   "HTTP/1.1 500 Internal Server Error\r\n\r\n".getBytes()
            );
        }
-
      } catch (IOException e) {
        System.out.println("IOException: " + e.getMessage());
      }
   }
 
-    private static String extractPathSegment(String requestLine) {
+    private static String handleRequest(String requestLine) {
         if (requestLine == null || !requestLine.startsWith("GET")) {
             return null;
         }
 
-        // Example: GET /abcdefg HTTP/1.1
+        // Example: GET echo/abcdefg HTTP/1.1
         String[] parts = requestLine.split(" ");
         if (parts.length < 2) {
             return null;
@@ -62,6 +54,13 @@ public class Main {
 
         // Extract path
         String path = parts[1];
-        return path.startsWith("/") ? path.substring(1) : path;
+        if(path.startsWith("/echo")) {
+            path = path.startsWith("/") ? path.substring(1) : path;
+            String[] params = path.split("/");
+            return params[1].startsWith("/") ? path.substring(1) : params[1];
+        }
+        else {
+            return null;
+        }
     }
 }
