@@ -1,4 +1,6 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -18,11 +20,43 @@ public class Main {
 
        Socket clientSocket = serverSocket.accept(); // Wait for connection from client.
        System.out.println("accepted new connection");
-       clientSocket.getOutputStream().write(
-               "HTTP/1.1 200 OK\r\n\r\n".getBytes()
-       );
+
+       BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+       String requestLine = in.readLine();
+       String pathSegment = extractPathSegment(requestLine);
+
+       System.out.println(pathSegment);
+
+       if(pathSegment.isEmpty()) {
+           clientSocket.getOutputStream().write(
+                   "HTTP/1.1 200 OK\r\n\r\n".getBytes()
+           );
+       }
+       else {
+           clientSocket.getOutputStream().write(
+                   "HTTP/1.1 404 Not Found\r\n\r\n".getBytes()
+           );
+       }
+
      } catch (IOException e) {
        System.out.println("IOException: " + e.getMessage());
      }
   }
+
+    private static String extractPathSegment(String requestLine) {
+        if (requestLine == null || !requestLine.startsWith("GET")) {
+            return null;
+        }
+
+        // Example: GET /abcdefg HTTP/1.1
+        String[] parts = requestLine.split(" ");
+        if (parts.length < 2) {
+            return null;
+        }
+
+        // Extract path
+        String path = parts[1];
+        return path.startsWith("/") ? path.substring(1) : path;
+    }
 }
