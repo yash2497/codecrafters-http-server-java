@@ -67,8 +67,8 @@ public class Main {
             String[] params = path.split("/");
             return params[1].startsWith("/") ? path.substring(1) : params[1];
         }
-        else if(path.isEmpty()) {
-            return "";
+        else if(path.equals("/")) {
+            return "/";
         }
         else {
             return null;
