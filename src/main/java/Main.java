@@ -26,9 +26,14 @@ public class Main {
        String requestLine = in.readLine();
        String pathSegment = extractPathSegment(requestLine);
 
-       System.out.println(pathSegment);
+       System.out.println(pathSegment == null);
 
        if(pathSegment == null) {
+           clientSocket.getOutputStream().write(
+                   "HTTP/1.1 500 Internal Server Error\r\n\r\n".getBytes()
+           );
+       }
+       else if (pathSegment.isEmpty()) {
            clientSocket.getOutputStream().write(
                    "HTTP/1.1 200 OK\r\n\r\n".getBytes()
            );
