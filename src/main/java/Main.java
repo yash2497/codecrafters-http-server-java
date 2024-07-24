@@ -29,6 +29,9 @@ public class Main {
 
        Map<String, String> headers = readHeaders(in);
        String headerVal = headers.get("User-Agent");
+
+       System.out.println("Map-Values###########");
+       headers.forEach((key, value) -> System.out.println(key + ": " + value));
        System.out.println("header value: "+ headerVal);
 
 //       String requestLine = in.readLine();
