@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class Main {
   public static void main(String[] args) {
@@ -28,7 +29,7 @@ public class Main {
 
        if(body != null) {
            clientSocket.getOutputStream().write(
-                   "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 3\r\n\r\nabc".getBytes()
+                   ("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 3\r\n\r\n" + Arrays.toString(body.getBytes())).getBytes()
            );
        }
        else {
