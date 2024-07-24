@@ -30,20 +30,20 @@ public class Main {
        Map<String, String> headers = readHeaders(in);
        String headerVal = headers.get("User-Agent");
        System.out.println("header value: "+ headerVal);
-       
-       String requestLine = in.readLine();
-       System.out.println("requestLine: " +requestLine);
-       String body = handleRequest(requestLine);
 
-       System.out.println("body: " + body);
+//       String requestLine = in.readLine();
+//       System.out.println("requestLine: " +requestLine);
+//       String body = handleRequest(requestLine);
 
-       if(body != null) {
+//       System.out.println("body: " + body);
+
+       if(headerVal != null) {
            clientSocket.getOutputStream().write(
                    ("HTTP/1.1 200 OK\r\n" +
                            "Content-Type: text/plain\r\n" +
-                           "Content-Length: " + body.length() + "\r\n" +
+                           "Content-Length: " + headerVal.length() + "\r\n" +
                            "\r\n" +
-                           body).getBytes()
+                           headerVal).getBytes()
            );
        }
        else {
@@ -56,37 +56,38 @@ public class Main {
      }
   }
 
-    private static String handleRequest(String requestLine) {
-        if (requestLine == null || !requestLine.startsWith("GET")) {
-            return null;
-        }
-
-        // Example: GET echo/abcdefg HTTP/1.1
-        String[] parts = requestLine.split(" ");
-        if (parts.length < 2) {
-            return null;
-        }
-
-        // Extract path
-        String path = parts[1];
-        System.out.println("path: " + path);
-        if(path.startsWith("/user-agent")) {
-            path = path.startsWith("/") ? path.substring(1) : path;
-            String[] params = path.split("/");
-            return params[1].startsWith("/") ? path.substring(1) : params[1];
-        }
-        else if(path.equals("/")) {
-            return "/";
-        }
-        else {
-            return null;
-        }
-    }
+//    private static String handleRequest(String requestLine) {
+//        if (requestLine == null || !requestLine.startsWith("GET")) {
+//            return null;
+//        }
+//
+//        // Example: GET echo/abcdefg HTTP/1.1
+//        String[] parts = requestLine.split(" ");
+//        if (parts.length < 2) {
+//            return null;
+//        }
+//
+//        // Extract path
+//        String path = parts[1];
+//        System.out.println("path: " + path);
+//        if(path.startsWith("/user-agent")) {
+//            path = path.startsWith("/") ? path.substring(1) : path;
+//            String[] params = path.split("/");
+//            return params[1].startsWith("/") ? path.substring(1) : params[1];
+//        }
+//        else if(path.equals("/")) {
+//            return "/";
+//        }
+//        else {
+//            return null;
+//        }
+//    }
 
     private static Map<String, String> readHeaders(BufferedReader in) throws IOException {
         Map<String, String> headers = new HashMap<>();
         String headerLine;
         while ((headerLine = in.readLine()) != null && !headerLine.isEmpty()) {
+            System.out.println("header line: " + headerLine);
             String[] headerParts = headerLine.split(": ", 2);
             if (headerParts.length == 2) {
                 headers.put(headerParts[0], headerParts[1]);
