@@ -51,12 +51,19 @@ public class Main {
        }
        else {
            String resp = handleRequest(headers.get("response-body"));
-           clientSocket.getOutputStream().write(
-                   ("HTTP/1.1 200 OK\r\n" +
-                           "Content-Type: text/plain\r\n" +
-                           "Content-Length: "+ resp.length() + "\r\n" +
-                           "\r\n"+resp).getBytes()
-           );
+           if(resp != null) {
+               clientSocket.getOutputStream().write(
+                       ("HTTP/1.1 200 OK\r\n" +
+                               "Content-Type: text/plain\r\n" +
+                               "Content-Length: "+ resp.length() + "\r\n" +
+                               "\r\n"+resp).getBytes()
+               );
+           }
+           else {
+               clientSocket.getOutputStream().write(
+                       "HTTP/1.1 404 Not Found\r\n\r\n".getBytes());
+           }
+
        }
      } catch (IOException e) {
        System.out.println("IOException: " + e.getMessage());
