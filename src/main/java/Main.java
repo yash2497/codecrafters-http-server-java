@@ -30,15 +30,7 @@ public class Main {
        Map<String, String> headers = readHeaders(in);
        String headerVal = headers.get("User-Agent");
 
-       System.out.println("Map-Values###########");
        headers.forEach((key, value) -> System.out.println(key + ": " + value));
-       System.out.println("----------header value: "+ headerVal);
-
-//       String requestLine = in.readLine();
-//       System.out.println("requestLine: " +requestLine);
-//       String body = handleRequest(requestLine);
-
-//       System.out.println("body: " + body);
 
        if(headerVal != null) {
            clientSocket.getOutputStream().write(
@@ -83,7 +75,6 @@ public class Main {
 
         // Extract path
         String path = parts[1];
-        System.out.println("path: " + path);
         if(path.startsWith("/echo")) {
             path = path.startsWith("/") ? path.substring(1) : path;
             String[] params = path.split("/");
@@ -101,7 +92,6 @@ public class Main {
         Map<String, String> headers = new HashMap<>();
         String headerLine;
         while ((headerLine = in.readLine()) != null && !headerLine.isEmpty()) {
-            System.out.println("header line: " + headerLine);
             String[] headerParts = headerLine.split(": ", 2);
             if (headerParts.length == 2) {
                 headers.put(headerParts[0], headerParts[1]);
