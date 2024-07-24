@@ -77,7 +77,7 @@ public class Main {
         // Extract path
         String path = parts[1];
         System.out.println("path: " + path);
-        if(path.startsWith("/user-agent")) {
+        if(path.startsWith("/echo")) {
             path = path.startsWith("/") ? path.substring(1) : path;
             String[] params = path.split("/");
             return params[1].startsWith("/") ? path.substring(1) : params[1];
