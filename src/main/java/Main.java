@@ -27,9 +27,11 @@ public class Main {
        String requestLine = in.readLine();
        String body = handleRequest(requestLine);
 
+       System.out.println("body: " + body);
+
        if(body != null) {
            clientSocket.getOutputStream().write(
-                   ("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 3\r\n\r\n" + Arrays.toString(body.getBytes())).getBytes()
+                   ("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: "+ body.length()+"\r\n\r\n" + Arrays.toString(body.getBytes())).getBytes()
            );
        }
        else {
