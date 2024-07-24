@@ -32,7 +32,7 @@ public class Main {
 
        System.out.println("Map-Values###########");
        headers.forEach((key, value) -> System.out.println(key + ": " + value));
-       System.out.println("header value: "+ headerVal);
+       System.out.println("----------header value: "+ headerVal);
 
 //       String requestLine = in.readLine();
 //       System.out.println("requestLine: " +requestLine);
@@ -97,6 +97,9 @@ public class Main {
             String[] headerParts = headerLine.split(": ", 2);
             if (headerParts.length == 2) {
                 headers.put(headerParts[0], headerParts[1]);
+            }
+            else {
+                headers.put(headerParts[0], null);
             }
         }
         return headers;
