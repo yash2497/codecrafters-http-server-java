@@ -97,7 +97,7 @@ public class ClientHandler implements Runnable{
     }
 
     private String getFileSizeAndContent(String filename) throws IOException {
-        Path filePath = Paths.get("/tmp", filename);
+        Path filePath = Paths.get("/tmp/data/codecrafters.io/http-server-tester", filename);
         System.out.println("Pathhhh: "+ filePath);
         if(Files.exists(filePath)) {
             byte[] fileContent = Files.readAllBytes(filePath);
