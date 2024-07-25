@@ -11,8 +11,10 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class ClientHandler implements Runnable {
     private final Socket clientSocket;
+    private static final String BASE_DIRECTORY = "/tmp/data/codecrafters.io/http-server-tester/";
 
     public ClientHandler(Socket socket) {
         this.clientSocket = socket;
@@ -106,7 +108,8 @@ public class ClientHandler implements Runnable {
             in.read(content, 0, contentLength);
 
             // Write the content to the file
-            Path filePath = Paths.get("/tmp/data/codecrafters.io/http-server-tester", filename);
+            Path filePath = Paths.get(BASE_DIRECTORY, filename);
+            Files.createDirectories(filePath.getParent());  // Ensure the directory exists
             Files.write(filePath, new String(content).getBytes());
 
             // Send 201 Created response
@@ -144,7 +147,7 @@ public class ClientHandler implements Runnable {
     }
 
     private void sendFileResponse(OutputStream out, String filename) throws IOException {
-        Path filePath = Paths.get("/tmp", filename);
+        Path filePath = Paths.get(BASE_DIRECTORY, filename);
         if (Files.exists(filePath)) {
             byte[] fileContent = Files.readAllBytes(filePath);
             String response = "HTTP/1.1 200 OK\r\n" +
@@ -181,4 +184,3 @@ public class ClientHandler implements Runnable {
         out.flush();
     }
 }
-
