@@ -10,27 +10,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Main {
-  public static void main(String[] args) {
-    // You can use print statements as follows for debugging, they'll be visible when running tests.
-    System.out.println("Logs from your program will appear here!");
+    public static void main(String[] args) throws IOException {
+        ServerSocket serverSocket = new ServerSocket(4221);
+        System.out.println("Listening on port 4221...");
 
-    // Uncomment this block to pass the first stage
-      try{
-          ServerSocket serverSocket = new ServerSocket(4221);
+        while (true) {
+            Socket clientSocket = serverSocket.accept();
+            System.out.println("Accepted connection from " + clientSocket);
 
-          // Since the tester restarts your program quite often, setting SO_REUSEADDR
-          // ensures that we don't run into 'Address already in use' errors
-          serverSocket.setReuseAddress(true);
-          Socket clientSocket = serverSocket.accept();
-          System.out.println("Accepted connection from " + clientSocket);
-          ClientHandler clientHandler = new ClientHandler(clientSocket);
-
-          Thread thread = new Thread(clientHandler);
-          thread.start();
-      } catch(IOException e) {
-          System.out.println("IOException: " + e.getMessage());
-      }
-
-  }
+            // Create a new thread to handle the client request
+            ClientHandler clientHandler = new ClientHandler(clientSocket);
+            Thread thread = new Thread(clientHandler);
+            thread.start();
+        }
+    }
 
 }
