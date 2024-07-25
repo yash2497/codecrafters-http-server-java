@@ -101,11 +101,11 @@ public class ClientHandler implements Runnable{
         System.out.println("Pathhhh: "+ filePath);
         if(Files.exists(filePath)) {
             byte[] fileContent = Files.readAllBytes(filePath);
-            System.out.println("File contentttttt: "+ Arrays.toString(fileContent));
+            System.out.println("File contentttttt: "+ fileContent);
             return "HTTP/1.1 200 OK\r\n" +
                     "Content-Type: application/octet-stream\r\n" +
                     "Content-Length: " + fileContent.length + "\r\n" +
-                    "\r\n"+ Arrays.toString(fileContent);
+                    "\r\n"+ fileContent;
         }
         return null;
     }
