@@ -38,42 +38,62 @@ public class ClientHandler implements Runnable{
                 );
             }
             else {
-                handleRequestAndSendResp(headers.get("response-body"), out);
+                handleRequestAndSendResp(headers.get("response-body"), out, headers);
             }
         } catch (IOException e) {
             System.out.println("IOException: " + e.getMessage());
         }
     }
 
-    private void handleRequestAndSendResp(String requestLine, OutputStream out) throws IOException {
+    private void handleRequestAndSendResp(String requestLine, OutputStream out, Map<String, String> headers) throws IOException {
+
+        if(requestLine != null && requestLine.startsWith("GET")) {
+            handleGetRequest(requestLine, out);
+        }
+        else if(requestLine != null && requestLine.startsWith("POST")) {
+            handlePostRequest(requestLine, out, headers);
+
+        }
+    }
+
+    private void handlePostRequest(String requestLine, OutputStream out, Map<String, String> headers) throws IOException {
+        if (requestLine.startsWith("/files/")) {
+            String filename = requestLine.substring(7);
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                System.out.println("Key: " + entry.getKey() + ", Value: " + entry.getValue());
+            }
+        }
+    }
+
+    private void handleGetRequest(String requestLine, OutputStream out) throws IOException {
         String resp;
-        if (requestLine == null || !requestLine.startsWith("GET")) {
+        if (requestLine == null) {
             resp = null;
-        }
-
-        // Example: GET echo/abcdefg HTTP/1.1
-        assert requestLine != null;
-        String[] parts = requestLine.split(" ");
-        if (parts.length < 2) {
-            resp = null;
-        }
-
-        // Extract path
-        String path = parts[1];
-        if(path.startsWith("/echo")) {
-            path = path.startsWith("/") ? path.substring(1) : path;
-            String[] params = path.split("/");
-            resp = params[1].startsWith("/") ? path.substring(1) : params[1];
-        }
-        else if(path.equals("/")) {
-            resp = "/";
-        }
-        else if(path.startsWith("/files/")) {
-            String filename = path.substring(7);
-            resp = getFileSizeAndContent(filename);
         }
         else {
-            resp = null;
+            // Example: GET echo/abcdefg HTTP/1.1
+            String[] parts = requestLine.split(" ");
+            if (parts.length < 2) {
+                resp = null;
+            }
+
+            // Extract path
+            String path = parts[1];
+            if(path.startsWith("/echo")) {
+                path = path.startsWith("/") ? path.substring(1) : path;
+                String[] params = path.split("/");
+                resp = params[1].startsWith("/") ? path.substring(1) : params[1];
+            }
+            else if(path.equals("/")) {
+                resp = "/";
+            }
+            else if(path.startsWith("/files/")) {
+                String filename = path.substring(7);
+                resp = getFileSizeAndContent(filename);
+            }
+            else {
+                resp = null;
+            }
         }
         if(resp != null && !resp.startsWith("HTTP/1.1")) {
             out.write(
