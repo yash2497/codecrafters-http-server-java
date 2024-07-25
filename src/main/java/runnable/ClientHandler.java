@@ -27,9 +27,7 @@ public class ClientHandler implements Runnable{
             Map<String, String> headers = readHeaders(in);
             String headerVal = headers.get("User-Agent");
 
-//            System.out.println("Map-Values###########");
             headers.forEach((key, value) -> System.out.println(key + ": " + value));
-//            System.out.println("----------header value: "+ headerVal);
 
             if(headerVal != null) {
                 out.write(
@@ -74,7 +72,9 @@ public class ClientHandler implements Runnable{
         }
         else if(path.startsWith("/files/")) {
             String filename = path.substring(7);
+            System.out.println("Filename: " + filename);
             resp = getFileSizeAndContent(filename);
+            System.out.println("Respppppppppp: "+ resp);
         }
         else {
             resp = null;
@@ -98,8 +98,10 @@ public class ClientHandler implements Runnable{
 
     private String getFileSizeAndContent(String filename) throws IOException {
         Path filePath = Paths.get("/tmp", filename);
+        System.out.println("Pathhhh: "+ filePath);
         if(Files.exists(filePath)) {
             byte[] fileContent = Files.readAllBytes(filePath);
+            System.out.println("File contentttttt: "+ Arrays.toString(fileContent));
             return "HTTP/1.1 200 OK\r\n" +
                     "Content-Type: application/octet-stream\r\n" +
                     "Content-Length: " + fileContent.length + "\r\n" +
