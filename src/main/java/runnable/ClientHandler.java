@@ -8,7 +8,6 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,7 +60,6 @@ public class ClientHandler implements Runnable{
 
         // Extract path
         String path = parts[1];
-        System.out.println("path: " + path);
         if(path.startsWith("/echo")) {
             path = path.startsWith("/") ? path.substring(1) : path;
             String[] params = path.split("/");
@@ -72,9 +70,7 @@ public class ClientHandler implements Runnable{
         }
         else if(path.startsWith("/files/")) {
             String filename = path.substring(7);
-            System.out.println("Filename: " + filename);
             resp = getFileSizeAndContent(filename);
-            System.out.println("Respppppppppp: "+ resp);
         }
         else {
             resp = null;
@@ -98,11 +94,9 @@ public class ClientHandler implements Runnable{
 
     private String getFileSizeAndContent(String filename) throws IOException {
         Path filePath = Paths.get("/tmp/data/codecrafters.io/http-server-tester", filename);
-        System.out.println("Pathhhh: "+ filePath);
         if(Files.exists(filePath)) {
             byte[] fileContent = Files.readAllBytes(filePath);
             String fileContentString = new String(fileContent);
-            System.out.println("File contentttttt: "+ fileContentString);
             return "HTTP/1.1 200 OK\r\n" +
                     "Content-Type: application/octet-stream\r\n" +
                     "Content-Length: " + fileContent.length + "\r\n" +
