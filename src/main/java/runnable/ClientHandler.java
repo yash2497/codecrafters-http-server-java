@@ -45,7 +45,7 @@ public class ClientHandler implements Runnable {
             }
 
             // Handle the request
-            handleRequest(requestLine, out);
+            handleRequest(requestLine, headers, in, out);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -64,14 +64,25 @@ public class ClientHandler implements Runnable {
         return headers;
     }
 
-    private void handleRequest(String requestLine, OutputStream out) throws IOException {
+    private void handleRequest(String requestLine, Map<String, String> headers, BufferedReader in, OutputStream out) throws IOException {
         String[] parts = requestLine.split(" ");
         if (parts.length < 2) {
             sendNotFoundResponse(out);
             return;
         }
 
+        String method = parts[0];
         String path = parts[1];
+        if (method.equals("GET")) {
+            handleGetRequest(path, out);
+        } else if (method.equals("POST")) {
+            handlePostRequest(path, headers, in, out);
+        } else {
+            sendNotFoundResponse(out);
+        }
+    }
+
+    private void handleGetRequest(String path, OutputStream out) throws IOException {
         if (path.startsWith("/echo/")) {
             String echoString = path.substring(6);  // Extract the {str} part
             sendEchoResponse(out, echoString);
@@ -80,6 +91,31 @@ public class ClientHandler implements Runnable {
         } else if (path.startsWith("/files/")) {
             String filename = path.substring(7);  // Extract the {filename} part
             sendFileResponse(out, filename);
+        } else {
+            sendNotFoundResponse(out);
+        }
+    }
+
+    private void handlePostRequest(String path, Map<String, String> headers, BufferedReader in, OutputStream out) throws IOException {
+        if (path.startsWith("/files/")) {
+            String filename = path.substring(7);  // Extract the {filename} part
+
+            // Read the content length
+            int contentLength = Integer.parseInt(headers.get("Content-Length"));
+            char[] content = new char[contentLength];
+            in.read(content, 0, contentLength);
+
+            // Write the content to the file
+            Path filePath = Paths.get("/tmp", filename);
+            Files.write(filePath, new String(content).getBytes());
+
+            // Send 201 Created response
+            String response = "HTTP/1.1 201 Created\r\n" +
+                    "Content-Type: text/plain\r\n" +
+                    "Content-Length: 0\r\n" +
+                    "\r\n";
+            out.write(response.getBytes());
+            out.flush();
         } else {
             sendNotFoundResponse(out);
         }
@@ -111,8 +147,6 @@ public class ClientHandler implements Runnable {
         Path filePath = Paths.get("/tmp", filename);
         if (Files.exists(filePath)) {
             byte[] fileContent = Files.readAllBytes(filePath);
-            String fileContentString = new String(fileContent);
-            System.out.println("File content: " + fileContentString);
             String response = "HTTP/1.1 200 OK\r\n" +
                     "Content-Type: application/octet-stream\r\n" +
                     "Content-Length: " + fileContent.length + "\r\n" +
