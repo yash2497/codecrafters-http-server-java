@@ -26,6 +26,7 @@ public class ClientHandler implements Runnable{
             Map<String, String> headers = readHeaders(in);
             String headerVal = headers.get("User-Agent");
 
+            System.out.println("Header valuesssssss");
             headers.forEach((key, value) -> System.out.println(key + ": " + value));
 
             if(headerVal != null) {
@@ -51,6 +52,7 @@ public class ClientHandler implements Runnable{
             handleGetRequest(requestLine, out);
         }
         else if(requestLine != null && requestLine.startsWith("POST")) {
+            System.out.println("Sending post response");
             handlePostRequest(requestLine, out, headers);
 
         }
