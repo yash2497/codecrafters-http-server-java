@@ -106,7 +106,7 @@ public class ClientHandler implements Runnable {
             in.read(content, 0, contentLength);
 
             // Write the content to the file
-            Path filePath = Paths.get("/tmp", filename);
+            Path filePath = Paths.get("/tmp/data/codecrafters.io/http-server-tester", filename);
             Files.write(filePath, new String(content).getBytes());
 
             // Send 201 Created response
