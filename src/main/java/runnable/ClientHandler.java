@@ -38,14 +38,6 @@ public class ClientHandler implements Runnable {
             Map<String, String> headers = readHeaders(in);
             headers.forEach((key, value) -> System.out.println(key + ": " + value));
 
-            // Extract User-Agent
-            String userAgent = headers.get("User-Agent");
-            if (userAgent != null) {
-                System.out.println("User-Agent: " + userAgent);
-            } else {
-                System.out.println("User-Agent header not found.");
-            }
-
             // Handle the request
             handleRequest(requestLine, headers, in, out);
 
@@ -165,7 +157,7 @@ public class ClientHandler implements Runnable {
     }
 
     private void sendUserAgentResponse(OutputStream out, String userAgent) throws IOException {
-        String body = "User-Agent: " + userAgent;
+        String body = userAgent == null ? "" : userAgent;
         String response = "HTTP/1.1 200 OK\r\n" +
                 "Content-Type: text/plain\r\n" +
                 "Content-Length: " + body.length() + "\r\n" +
