@@ -76,7 +76,7 @@ public class ClientHandler implements Runnable {
         String method = parts[0];
         String path = parts[1];
         if (method.equals("GET")) {
-            handleGetRequest(path, out);
+            handleGetRequest(path, headers, out);
         } else if (method.equals("POST")) {
             handlePostRequest(path, headers, in, out);
         } else {
@@ -84,7 +84,7 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private void handleGetRequest(String path, OutputStream out) throws IOException {
+    private void handleGetRequest(String path, Map<String, String> headers, OutputStream out) throws IOException {
         if (path.startsWith("/echo/")) {
             String echoString = path.substring(6);  // Extract the {str} part
             sendEchoResponse(out, echoString);
@@ -93,6 +93,8 @@ public class ClientHandler implements Runnable {
         } else if (path.startsWith("/files/")) {
             String filename = path.substring(7);  // Extract the {filename} part
             sendFileResponse(out, filename);
+        } else if (path.equals("/user-agent")) {
+            sendUserAgentResponse(out, headers.get("User-Agent"));
         } else {
             sendNotFoundResponse(out);
         }
@@ -159,6 +161,17 @@ public class ClientHandler implements Runnable {
         } else {
             sendNotFoundResponse(out);
         }
+        out.flush();
+    }
+
+    private void sendUserAgentResponse(OutputStream out, String userAgent) throws IOException {
+        String body = "User-Agent: " + userAgent;
+        String response = "HTTP/1.1 200 OK\r\n" +
+                "Content-Type: text/plain\r\n" +
+                "Content-Length: " + body.length() + "\r\n" +
+                "\r\n" +
+                body;
+        out.write(response.getBytes());
         out.flush();
     }
 
