@@ -3,7 +3,12 @@ package runnable;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,15 +23,16 @@ public class ClientHandler implements Runnable{
     public void run() {
         try {
             BufferedReader in = new BufferedReader(new InputStreamReader(this.clientSocket.getInputStream()));
+            OutputStream out = clientSocket.getOutputStream();
             Map<String, String> headers = readHeaders(in);
             String headerVal = headers.get("User-Agent");
 
-            System.out.println("Map-Values###########");
+//            System.out.println("Map-Values###########");
             headers.forEach((key, value) -> System.out.println(key + ": " + value));
-            System.out.println("----------header value: "+ headerVal);
+//            System.out.println("----------header value: "+ headerVal);
 
             if(headerVal != null) {
-                clientSocket.getOutputStream().write(
+                out.write(
                         ("HTTP/1.1 200 OK\r\n" +
                                 "Content-Type: text/plain\r\n" +
                                 "Content-Length: " + headerVal.length() + "\r\n" +
@@ -35,35 +41,24 @@ public class ClientHandler implements Runnable{
                 );
             }
             else {
-                String resp = handleRequest(headers.get("response-body"));
-                if(resp != null) {
-                    clientSocket.getOutputStream().write(
-                            ("HTTP/1.1 200 OK\r\n" +
-                                    "Content-Type: text/plain\r\n" +
-                                    "Content-Length: "+ resp.length() + "\r\n" +
-                                    "\r\n"+resp).getBytes()
-                    );
-                }
-                else {
-                    clientSocket.getOutputStream().write(
-                            "HTTP/1.1 404 Not Found\r\n\r\n".getBytes());
-                }
-
+                handleRequestAndSendResp(headers.get("response-body"), out);
             }
         } catch (IOException e) {
             System.out.println("IOException: " + e.getMessage());
         }
     }
 
-    private String handleRequest(String requestLine) {
+    private void handleRequestAndSendResp(String requestLine, OutputStream out) throws IOException {
+        String resp;
         if (requestLine == null || !requestLine.startsWith("GET")) {
-            return null;
+            resp = null;
         }
 
         // Example: GET echo/abcdefg HTTP/1.1
+        assert requestLine != null;
         String[] parts = requestLine.split(" ");
         if (parts.length < 2) {
-            return null;
+            resp = null;
         }
 
         // Extract path
@@ -72,14 +67,45 @@ public class ClientHandler implements Runnable{
         if(path.startsWith("/echo")) {
             path = path.startsWith("/") ? path.substring(1) : path;
             String[] params = path.split("/");
-            return params[1].startsWith("/") ? path.substring(1) : params[1];
+            resp = params[1].startsWith("/") ? path.substring(1) : params[1];
         }
         else if(path.equals("/")) {
-            return "/";
+            resp = "/";
+        }
+        else if(path.startsWith("/files/")) {
+            String filename = path.substring(7);
+            resp = getFileSizeAndContent(filename);
         }
         else {
-            return null;
+            resp = null;
         }
+        if(resp != null && !resp.startsWith("HTTP/1.1")) {
+            out.write(
+                    ("HTTP/1.1 200 OK\r\n" +
+                            "Content-Type: text/plain\r\n" +
+                            "Content-Length: "+ resp.length() + "\r\n" +
+                            "\r\n"+resp).getBytes()
+            );
+        }
+        else if(resp != null && resp.startsWith("HTTP/1.1")) {
+            out.write((resp).getBytes());
+        }
+        else {
+            out.write(
+                    "HTTP/1.1 404 Not Found\r\n\r\n".getBytes());
+        }
+    }
+
+    private String getFileSizeAndContent(String filename) throws IOException {
+        Path filePath = Paths.get("/tmp", filename);
+        if(Files.exists(filePath)) {
+            byte[] fileContent = Files.readAllBytes(filePath);
+            return "HTTP/1.1 200 OK\r\n" +
+                    "Content-Type: application/octet-stream\r\n" +
+                    "Content-Length: " + fileContent.length + "\r\n" +
+                    "\r\n"+ Arrays.toString(fileContent);
+        }
+        return null;
     }
 
     private Map<String, String> readHeaders(BufferedReader in) throws IOException {
