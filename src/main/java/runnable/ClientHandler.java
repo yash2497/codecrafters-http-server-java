@@ -57,12 +57,12 @@ public class ClientHandler implements Runnable{
     }
 
     private void handlePostRequest(String requestLine, OutputStream out, Map<String, String> headers) throws IOException {
-        if (requestLine.startsWith("/files/")) {
-            String filename = requestLine.substring(7);
-            for (Map.Entry<String, String> entry : headers.entrySet()) {
-                System.out.println("Key: " + entry.getKey() + ", Value: " + entry.getValue());
-            }
-        }
+//        if (requestLine.startsWith("/files/")) {
+//            String filename = requestLine.substring(7);
+//            for (Map.Entry<String, String> entry : headers.entrySet()) {
+//                System.out.println("Key: " + entry.getKey() + ", Value: " + entry.getValue());
+//            }
+//        }
     }
 
     private void handleGetRequest(String requestLine, OutputStream out) throws IOException {
