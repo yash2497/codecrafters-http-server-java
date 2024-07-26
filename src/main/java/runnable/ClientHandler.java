@@ -8,7 +8,9 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -145,7 +147,10 @@ public class ClientHandler implements Runnable {
     }
 
     private void sendEchoResponseEncoding(OutputStream out, String echoString, String encoding) throws IOException {
-        if(encoding.equals("gzip")) {
+        String[] encodings = encoding.split(",");
+        List<String> encodingsList = Arrays.asList(encodings);
+        encodingsList.replaceAll(String::trim);
+        if(encodingsList.contains("gzip")) {
             String response = "HTTP/1.1 200 OK\r\n" +
                     "Content-Type: text/plain\r\n" +
                     "Content-Encoding: gzip\r\n" +
