@@ -152,12 +152,13 @@ public class ClientHandler implements Runnable {
         if(encodingsList.contains("gzip")) {
             // Compress the string
             byte[] compressedData = compress(echoString);
+            String hexDump = getHexDump(compressedData);
             String response = "HTTP/1.1 200 OK\r\n" +
                     "Content-Type: text/plain\r\n" +
                     "Content-Encoding: gzip\r\n" +
                     "Content-Length: " + compressedData.length + "\r\n" +
                     "\r\n" +
-                    Arrays.toString(compressedData);
+                    hexDump;
             out.write(response.getBytes());
             out.flush();
         }
@@ -178,6 +179,30 @@ public class ClientHandler implements Runnable {
             gzipOutputStream.write(data.getBytes(StandardCharsets.UTF_8));
         }
         return byteArrayOutputStream.toByteArray();
+    }
+
+    private String getHexDump(byte[] data) {
+        StringBuilder hexDump = new StringBuilder();
+        for (int i = 0; i < data.length; i += 16) {
+            hexDump.append(String.format("%08X  ", i));
+            for (int j = 0; j < 16; j++) {
+                if (i + j < data.length) {
+                    hexDump.append(String.format("%02X ", data[i + j]));
+                } else {
+                    hexDump.append("   ");
+                }
+            }
+            hexDump.append(" ");
+            for (int j = 0; j < 16 && i + j < data.length; j++) {
+                if (data[i + j] >= 32 && data[i + j] <= 126) {
+                    hexDump.append((char) data[i + j]);
+                } else {
+                    hexDump.append(".");
+                }
+            }
+            hexDump.append("\n");
+        }
+        return hexDump.toString();
     }
 
     private void sendFileResponse(OutputStream out, String filename) throws IOException {
