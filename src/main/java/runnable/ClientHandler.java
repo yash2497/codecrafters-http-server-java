@@ -78,8 +78,13 @@ public class ClientHandler implements Runnable {
 
     private void handleGetRequest(String path, Map<String, String> headers, OutputStream out) throws IOException {
         if (path.startsWith("/echo/")) {
-            String echoString = path.substring(6);  // Extract the {str} part
-            sendEchoResponse(out, echoString);
+            // Extract the {str} part
+            String echoString = path.substring(6);
+            if(headers.containsKey("Accept-Encoding")) {
+                sendEchoResponseEncoding(out, echoString, headers.get("Accept-Encoding"));
+            } else {
+                sendEchoResponse(out, echoString);
+            }
         } else if (path.equals("/")) {
             sendOkResponse(out);
         } else if (path.startsWith("/files/")) {
@@ -130,14 +135,35 @@ public class ClientHandler implements Runnable {
     }
 
     private void sendEchoResponse(OutputStream out, String echoString) throws IOException {
-        String body = echoString;
         String response = "HTTP/1.1 200 OK\r\n" +
                 "Content-Type: text/plain\r\n" +
-                "Content-Length: " + body.length() + "\r\n" +
+                "Content-Length: " + echoString.length() + "\r\n" +
                 "\r\n" +
-                body;
+                echoString;
         out.write(response.getBytes());
         out.flush();
+    }
+
+    private void sendEchoResponseEncoding(OutputStream out, String echoString, String encoding) throws IOException {
+        if(encoding.equals("gzip")) {
+            String response = "HTTP/1.1 200 OK\r\n" +
+                    "Content-Type: text/plain\r\n" +
+                    "Content-Encoding: gzip\r\n" +
+                    "Content-Length: " + echoString.length() + "\r\n" +
+                    "\r\n" +
+                    echoString;
+            out.write(response.getBytes());
+            out.flush();
+        }
+        else {
+            String response = "HTTP/1.1 200 OK\r\n" +
+                    "Content-Type: text/plain\r\n" +
+                    "Content-Length: " + echoString.length() + "\r\n" +
+                    "\r\n" +
+                    echoString;
+            out.write(response.getBytes());
+            out.flush();
+        }
     }
 
     private void sendFileResponse(OutputStream out, String filename) throws IOException {
