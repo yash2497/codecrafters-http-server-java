@@ -1,10 +1,8 @@
 package runnable;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,6 +10,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.GZIPOutputStream;
 
 
 public class ClientHandler implements Runnable {
@@ -151,12 +150,14 @@ public class ClientHandler implements Runnable {
         List<String> encodingsList = Arrays.asList(encodings);
         encodingsList.replaceAll(String::trim);
         if(encodingsList.contains("gzip")) {
+            // Compress the string
+            byte[] compressedData = compress(echoString);
             String response = "HTTP/1.1 200 OK\r\n" +
                     "Content-Type: text/plain\r\n" +
                     "Content-Encoding: gzip\r\n" +
-                    "Content-Length: " + echoString.length() + "\r\n" +
+                    "Content-Length: " + compressedData.length + "\r\n" +
                     "\r\n" +
-                    echoString;
+                    Arrays.toString(compressedData);
             out.write(response.getBytes());
             out.flush();
         }
@@ -169,6 +170,14 @@ public class ClientHandler implements Runnable {
             out.write(response.getBytes());
             out.flush();
         }
+    }
+
+    public static byte[] compress(String data) throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try(GZIPOutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream)) {
+            gzipOutputStream.write(data.getBytes(StandardCharsets.UTF_8));
+        }
+        return byteArrayOutputStream.toByteArray();
     }
 
     private void sendFileResponse(OutputStream out, String filename) throws IOException {
